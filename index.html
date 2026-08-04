@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Shield Clicker</title>
+        <link rel="stylesheet" href="/styles.css" />
+    </head>
+    <body>
+        <div class="app">
+            <header class="topbar">
+                <div class="brand">
+                    <svg class="brand-icon" viewBox="0 0 100 110" aria-hidden="true">
+                        <path d="M50 4 L92 20 V52 C92 82 74 100 50 108 C26 100 8 82 8 52 V20 Z" fill="var(--shield-fill)" stroke="var(--shield-stroke)" stroke-width="4"/>
+                        <path d="M50 26 L58 44 L78 46 L63 59 L67 79 L50 68 L33 79 L37 59 L22 46 L42 44 Z" fill="var(--star-fill)"/>
+                    </svg>
+                    <h1>Shield Clicker</h1>
+                </div>
+                <div class="stats">
+                    <div class="stat-block">
+                        <span class="stat-value" id="pointsValue">0</span>
+                        <span class="stat-label">Shields</span>
+                    </div>
+                    <div class="stat-block secondary">
+                        <span class="stat-value" id="pointsPerSecond">0</span>
+                        <span class="stat-label">per second</span>
+                    </div>
+                </div>
+                <button id="resetBtn" class="reset-btn" title="Reset progress">Reset</button>
+            </header>
+
+            <main class="layout">
+                <section class="clicker-area">
+                    <div class="click-wrap" id="clickWrap">
+                        <button id="shieldBtn" class="shield-btn" aria-label="Click the shield to earn Shields">
+                            <svg viewBox="0 0 200 220" class="shield-svg">
+                                <defs>
+                                    <linearGradient id="shieldGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="var(--shield-grad-top)" />
+                                        <stop offset="100%" stop-color="var(--shield-grad-bottom)" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M100 8 L184 40 V104 C184 164 148 200 100 212 C52 200 16 164 16 104 V40 Z"
+                                    fill="url(#shieldGrad)" stroke="var(--shield-stroke)" stroke-width="6" stroke-linejoin="round"/>
+                                <path d="M100 8 L184 40 V104 C184 164 148 200 100 212 C52 200 16 164 16 104 V40 Z"
+                                    fill="none" stroke="var(--shield-inner-stroke)" stroke-width="2" stroke-dasharray="4 6" opacity="0.5" transform="scale(0.92)" transform-origin="100 110"/>
+                                <path d="M100 52 L114 88 L153 92 L123 117 L133 156 L100 135 L67 156 L77 117 L47 92 L86 88 Z"
+                                    fill="var(--star-fill)" stroke="var(--star-stroke)" stroke-width="3" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="hint">Click the shield to earn Shields!</p>
+                    <div class="click-power-display">+<span id="clickPowerValue">1</span> per click</div>
+                </section>
+
+                <aside class="shop-panel">
+                    <h2>Shop</h2>
+                    <div class="shop-scroll">
+                        <div class="shop-section">
+                            <h3>Click Power</h3>
+                            <div id="clickUpgrades" class="upgrade-list"></div>
+                        </div>
+                        <div class="shop-section">
+                            <h3>Generators</h3>
+                            <div id="generatorUpgrades" class="upgrade-list"></div>
+                        </div>
+                    </div>
+                </aside>
+            </main>
+        </div>
+        <script src="/app.js"></script>
+    </body>
+</html>
