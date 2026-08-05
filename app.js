@@ -1,6 +1,45 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const SAVE_KEY = 'shieldClickerSave.v1';
+    const SAVE_KEY = 'shieldClickerSave.v2';
+    const LEGACY_SAVE_KEY = 'shieldClickerSave.v1';
     const COST_GROWTH = 1.15;
+
+    const SHIELD_SKINS = [
+        {
+            id: 'cap',
+            name: 'Captain America',
+            desc: 'The original. Red, white & blue.',
+            cost: 0,
+            colors: { red: '#b1191d', white: '#f5f6f8', blue: '#1e3a8a', star: '#f5f6f8' },
+        },
+        {
+            id: 'ironman',
+            name: 'Iron Man',
+            desc: 'Red and gold armor plating.',
+            cost: 500,
+            colors: { red: '#9e1b1b', white: '#d4af37', blue: '#e8c04a', star: '#3a2a05' },
+        },
+        {
+            id: 'blackpanther',
+            name: 'Black Panther',
+            desc: 'Vibranium black & royal purple.',
+            cost: 2500,
+            colors: { red: '#101014', white: '#5b2a86', blue: '#6d3fa0', star: '#c7cdd6' },
+        },
+        {
+            id: 'wintersoldier',
+            name: 'Winter Soldier',
+            desc: 'Gunmetal black with a crimson star.',
+            cost: 10000,
+            colors: { red: '#17181b', white: '#3d4147', blue: '#24262a', star: '#b1191d' },
+        },
+        {
+            id: 'hulk',
+            name: 'Hulk',
+            desc: 'Gamma green & gray, purple core.',
+            cost: 50000,
+            colors: { red: '#2f8a3e', white: '#6b7076', blue: '#5b2a86', star: '#d8f0d8' },
+        },
+    ];
 
     const CLICK_UPGRADES = [
         { id: 'click1', name: 'Sharper Edge', desc: '+1 per click', baseCost: 15, power: 1 },
@@ -31,14 +70,18 @@ document.addEventListener('DOMContentLoaded', () => {
         clickPower: 1,
         clickUpgrades: {},
         generators: {},
+        ownedShields: {},
+        equippedShield: 'cap',
     };
 
     CLICK_UPGRADES.forEach((u) => (state.clickUpgrades[u.id] = 0));
     GENERATORS.forEach((g) => (state.generators[g.id] = 0));
+    SHIELD_SKINS.forEach((s) => (state.ownedShields[s.id] = s.cost === 0));
 
     function loadState() {
         try {
-            const raw = localStorage.getItem(SAVE_KEY);
+            let raw = localStorage.getItem(SAVE_KEY);
+            if (!raw) raw = localStorage.getItem(LEGACY_SAVE_KEY);
             if (!raw) return;
             const saved = JSON.parse(raw);
             state.points = typeof saved.points === 'number' ? saved.points : 0;
@@ -49,6 +92,15 @@ document.addEventListener('DOMContentLoaded', () => {
             GENERATORS.forEach((g) => {
                 state.generators[g.id] = (saved.generators && saved.generators[g.id]) || 0;
             });
+            SHIELD_SKINS.forEach((s) => {
+                const owned = saved.ownedShields && saved.ownedShields[s.id];
+                state.ownedShields[s.id] = typeof owned === 'boolean' ? owned : s.cost === 0;
+            });
+            const equipped = saved.equippedShield;
+            state.equippedShield =
+                typeof equipped === 'string' && SHIELD_SKINS.some((s) => s.id === equipped) && state.ownedShields[equipped]
+                    ? equipped
+                    : 'cap';
         } catch (e) {
             console.warn('Failed to load save', e);
         }
@@ -252,6 +304,89 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activeGeneratorsEl) activeGeneratorsEl.style.setProperty('--orbit-radius', radius + 'px');
     });
 
+    function applyShieldSkin() {
+        const skin = SHIELD_SKINS.find((s) => s.id === state.equippedShield) || SHIELD_SKINS[0];
+        const root = document.documentElement;
+        root.style.setProperty('--shield-red', skin.colors.red);
+        root.style.setProperty('--shield-white', skin.colors.white);
+        root.style.setProperty('--shield-blue', skin.colors.blue);
+        root.style.setProperty('--shield-star', skin.colors.star);
+    }
+
+    const shieldSkinsEl = document.getElementById('shieldSkins');
+
+    function renderShieldSkins() {
+        if (!shieldSkinsEl) return;
+        shieldSkinsEl.innerHTML = '';
+        SHIELD_SKINS.forEach((s) => {
+            const owned = !!state.ownedShields[s.id];
+            const equipped = state.equippedShield === s.id;
+            const card = document.createElement('div');
+            card.className = 'upgrade-card skin-card';
+
+            let actionLabel = '';
+            let actionClass = 'skin-action';
+            let disabled = false;
+            if (equipped) {
+                actionLabel = 'Equipped';
+                actionClass += ' equipped';
+                disabled = true;
+            } else if (owned) {
+                actionLabel = 'Equip';
+                actionClass += ' equip';
+            } else {
+                actionLabel = `Buy (${formatNumber(s.cost)})`;
+                disabled = state.points < s.cost;
+            }
+
+            const swatch = document.createElement('div');
+            swatch.className = 'skin-swatch';
+            swatch.style.setProperty('--skin-center', s.colors.blue);
+            swatch.style.background = `radial-gradient(circle, ${s.colors.red} 0%, ${s.colors.red} 40%, ${s.colors.white} 40%, ${s.colors.white} 60%, ${s.colors.red} 60%, ${s.colors.red} 100%)`;
+
+            const info = document.createElement('div');
+            info.className = 'skin-info';
+            info.innerHTML = `
+                <div class="skin-name-row">
+                    <span class="skin-name">${s.name}</span>
+                </div>
+                <span class="upgrade-desc">${s.desc}</span>
+                <span class="skin-status">${owned ? (equipped ? 'Equipped' : 'Owned') : `${formatNumber(s.cost)} Shields`}</span>
+            `;
+
+            const btn = document.createElement('button');
+            btn.className = actionClass;
+            btn.textContent = actionLabel;
+            btn.disabled = disabled;
+            btn.addEventListener('click', () => handleShieldSkinAction(s));
+
+            card.appendChild(swatch);
+            card.appendChild(info);
+            card.appendChild(btn);
+            shieldSkinsEl.appendChild(card);
+        });
+    }
+
+    function handleShieldSkinAction(s) {
+        const owned = !!state.ownedShields[s.id];
+        if (owned) {
+            if (state.equippedShield === s.id) return;
+            state.equippedShield = s.id;
+            applyShieldSkin();
+            renderShieldSkins();
+            saveState();
+            return;
+        }
+        if (state.points < s.cost) return;
+        state.points -= s.cost;
+        state.ownedShields[s.id] = true;
+        state.equippedShield = s.id;
+        applyShieldSkin();
+        renderStats();
+        renderShieldSkins();
+        saveState();
+    }
+
     function renderShop() {
         clickUpgradesEl.innerHTML = '';
         CLICK_UPGRADES.forEach((u) => {
@@ -292,10 +427,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         renderActiveGenerators();
+        renderShieldSkins();
     }
 
     function refreshAffordability() {
-        const cards = document.querySelectorAll('.upgrade-card');
+        const cards = document.querySelectorAll('#clickUpgrades .upgrade-card, #generatorUpgrades .upgrade-card');
         let i = 0;
         CLICK_UPGRADES.forEach((u) => {
             const cost = costFor(u.baseCost, state.clickUpgrades[u.id]);
@@ -307,6 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (cards[i]) cards[i].disabled = state.points < cost;
             i++;
         });
+        renderShieldSkins();
     }
 
     function buyClickUpgrade(u) {
@@ -393,9 +530,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmed = window.confirm('Reset all progress? This cannot be undone.');
         if (!confirmed) return;
         localStorage.removeItem(SAVE_KEY);
-        state = { points: 0, clickPower: 1, clickUpgrades: {}, generators: {} };
+        localStorage.removeItem(LEGACY_SAVE_KEY);
+        state = {
+            points: 0,
+            clickPower: 1,
+            clickUpgrades: {},
+            generators: {},
+            ownedShields: {},
+            equippedShield: 'cap',
+        };
         CLICK_UPGRADES.forEach((u) => (state.clickUpgrades[u.id] = 0));
         GENERATORS.forEach((g) => (state.generators[g.id] = 0));
+        SHIELD_SKINS.forEach((s) => (state.ownedShields[s.id] = s.cost === 0));
+        applyShieldSkin();
         renderStats();
         renderShop();
     });
@@ -416,6 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('beforeunload', saveState);
 
     loadState();
+    applyShieldSkin();
     renderStats();
     renderShop();
 });

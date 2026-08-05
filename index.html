@@ -16,7 +16,7 @@
                         <circle cx="50" cy="50" r="33" fill="var(--shield-white)"/>
                         <circle cx="50" cy="50" r="24" fill="var(--shield-red)"/>
                         <circle cx="50" cy="50" r="15" fill="var(--shield-blue)" stroke="var(--shield-white)" stroke-width="1"/>
-                        <path d="M50 38 L53.5 46 L62 47 L55.5 53 L57 61.5 L50 57 L43 61.5 L44.5 53 L38 47 L46.5 46 Z" fill="var(--shield-white)"/>
+                        <path d="M50 38 L53.5 46 L62 47 L55.5 53 L57 61.5 L50 57 L43 61.5 L44.5 53 L38 47 L46.5 46 Z" fill="var(--shield-star)"/>
                     </svg>
                     <h1>Shield Clicker</h1>
                 </div>
@@ -63,7 +63,7 @@
                                 <circle cx="100" cy="100" r="32" fill="var(--shield-blue)" stroke="var(--shield-white)" stroke-width="2"/>
                                 <!-- white star -->
                                 <path d="M100 76 L107.5 92 L125 94.5 L112.5 106.5 L115.5 124 L100 115.5 L84.5 124 L87.5 106.5 L75 94.5 L92.5 92 Z"
-                                    fill="var(--shield-white)"/>
+                                    fill="var(--shield-star)"/>
                                 <!-- glossy sheen overlay -->
                                 <circle cx="100" cy="100" r="96" fill="url(#shieldSheen)"/>
                             </svg>
@@ -78,6 +78,7 @@
                     <div class="shop-tabs" id="shopTabs" role="tablist">
                         <button class="shop-tab active" data-tab="click" role="tab" aria-selected="true">Click Power</button>
                         <button class="shop-tab" data-tab="generators" role="tab" aria-selected="false">Generators</button>
+                        <button class="shop-tab" data-tab="shields" role="tab" aria-selected="false">Shields</button>
                     </div>
                     <div class="shop-scroll">
                         <div class="shop-section" data-panel="click">
@@ -85,6 +86,9 @@
                         </div>
                         <div class="shop-section" data-panel="generators" hidden>
                             <div id="generatorUpgrades" class="upgrade-list"></div>
+                        </div>
+                        <div class="shop-section" data-panel="shields" hidden>
+                            <div id="shieldSkins" class="upgrade-list"></div>
                         </div>
                     </div>
                 </aside>

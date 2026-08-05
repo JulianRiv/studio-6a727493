@@ -26,6 +26,7 @@
     --shield-red: #b1191d;
     --shield-white: #f5f6f8;
     --shield-blue: #1e3a8a;
+    --shield-star: #f5f6f8;
 }
 
 * {
@@ -470,6 +471,96 @@ body {
     font-size: 0.82rem;
     color: var(--star-fill);
     font-weight: 600;
+}
+
+/* ---------- Shield skins ---------- */
+.skin-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.skin-swatch {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    display: grid;
+    place-items: center;
+    position: relative;
+}
+
+.skin-swatch::after {
+    content: '';
+    position: absolute;
+    inset: 32%;
+    border-radius: 50%;
+    background: var(--skin-center, #1e3a8a);
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.25);
+}
+
+.skin-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.skin-name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.skin-name {
+    font-weight: 700;
+    font-size: 0.92rem;
+}
+
+.skin-status {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.skin-action {
+    flex-shrink: 0;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-alt);
+    color: var(--fg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.skin-action:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.skin-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.skin-action.equip {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-fg);
+}
+
+.skin-action.equipped {
+    background: transparent;
+    border-color: var(--accent-strong);
+    color: var(--accent-strong);
+    cursor: default;
 }
 
 /* ---------- Responsive ---------- */
