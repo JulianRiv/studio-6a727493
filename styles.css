@@ -19,6 +19,13 @@
     --shield-inner-stroke: #cfe0ff;
     --star-fill: #ffd54f;
     --star-stroke: #b8860b;
+
+    --shield-rim-hi: #f2f4f6;
+    --shield-rim-mid: #c7ccd3;
+    --shield-rim-lo: #7d838c;
+    --shield-red: #b1191d;
+    --shield-white: #f5f6f8;
+    --shield-blue: #1e3a8a;
 }
 
 * {
@@ -127,6 +134,97 @@ body {
     border-color: #ff6b6b;
 }
 
+/* ---------- Orbiting Active Generators ---------- */
+/* Icons for owned generators orbit around the shield's rim. They must never
+   intercept pointer/click events -- only the shield button itself is
+   clickable -- so the whole layer and every descendant is pointer-events:none. */
+.orbit-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    --orbit-radius: 150px;
+}
+
+.gen-orbit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    animation-name: orbitSpin;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-duration: var(--orbit-duration, 16s);
+    will-change: transform;
+}
+
+.gen-orbit-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(var(--orbit-radius, 150px), 0);
+    pointer-events: none;
+}
+
+.gen-orbit-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+    animation-name: orbitCounterSpin;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-duration: var(--orbit-duration, 16s);
+    will-change: transform;
+}
+
+.gen-orbit-icon svg {
+    width: 17px;
+    height: 17px;
+    pointer-events: none;
+}
+
+@keyframes orbitSpin {
+    from { transform: rotate(var(--orbit-offset, 0deg)); }
+    to { transform: rotate(calc(var(--orbit-offset, 0deg) + 360deg)); }
+}
+
+@keyframes orbitCounterSpin {
+    from { transform: translate(-50%, -50%) rotate(calc(-1 * var(--orbit-offset, 0deg))); }
+    to { transform: translate(-50%, -50%) rotate(calc(-1 * var(--orbit-offset, 0deg) - 360deg)); }
+}
+
+@media (max-width: 480px) {
+    .gen-orbit-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .gen-orbit-icon svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gen-orbit,
+    .gen-orbit-icon {
+        animation: none;
+        transform: rotate(var(--orbit-offset, 0deg));
+    }
+}
+
 /* ---------- Layout ---------- */
 .layout {
     flex: 1;
@@ -165,7 +263,7 @@ body {
     height: 100%;
     display: block;
     transition: transform 0.08s ease;
-    filter: drop-shadow(0 10px 30px rgba(58, 111, 240, 0.45));
+    filter: drop-shadow(0 10px 30px rgba(120, 130, 145, 0.5));
 }
 
 .shield-btn:active {
@@ -235,6 +333,40 @@ body {
 .shop-panel h2 {
     margin: 0 0 0.75rem;
     font-size: 1.1rem;
+}
+
+.shop-tabs {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.6rem;
+}
+
+.shop-tab {
+    flex: 1;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 0.6rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.shop-tab:hover {
+    color: var(--fg);
+    border-color: var(--accent);
+}
+
+.shop-tab.active {
+    background: var(--accent);
+    color: var(--accent-fg);
+    border-color: var(--accent);
 }
 
 .shop-scroll {

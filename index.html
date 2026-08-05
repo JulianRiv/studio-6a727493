@@ -10,9 +10,13 @@
         <div class="app">
             <header class="topbar">
                 <div class="brand">
-                    <svg class="brand-icon" viewBox="0 0 100 110" aria-hidden="true">
-                        <path d="M50 4 L92 20 V52 C92 82 74 100 50 108 C26 100 8 82 8 52 V20 Z" fill="var(--shield-fill)" stroke="var(--shield-stroke)" stroke-width="4"/>
-                        <path d="M50 26 L58 44 L78 46 L63 59 L67 79 L50 68 L33 79 L37 59 L22 46 L42 44 Z" fill="var(--star-fill)"/>
+                    <svg class="brand-icon" viewBox="0 0 100 100" aria-hidden="true">
+                        <circle cx="50" cy="50" r="48" fill="var(--shield-rim-mid)" stroke="var(--shield-rim-lo)" stroke-width="2"/>
+                        <circle cx="50" cy="50" r="42" fill="var(--shield-red)"/>
+                        <circle cx="50" cy="50" r="33" fill="var(--shield-white)"/>
+                        <circle cx="50" cy="50" r="24" fill="var(--shield-red)"/>
+                        <circle cx="50" cy="50" r="15" fill="var(--shield-blue)" stroke="var(--shield-white)" stroke-width="1"/>
+                        <path d="M50 38 L53.5 46 L62 47 L55.5 53 L57 61.5 L50 57 L43 61.5 L44.5 53 L38 47 L46.5 46 Z" fill="var(--shield-white)"/>
                     </svg>
                     <h1>Shield Clicker</h1>
                 </div>
@@ -32,20 +36,36 @@
             <main class="layout">
                 <section class="clicker-area">
                     <div class="click-wrap" id="clickWrap">
+                        <div class="orbit-layer" id="activeGenerators" aria-label="Owned generators"></div>
                         <button id="shieldBtn" class="shield-btn" aria-label="Click the shield to earn Shields">
-                            <svg viewBox="0 0 200 220" class="shield-svg">
+                            <svg viewBox="0 0 200 200" class="shield-svg">
                                 <defs>
-                                    <linearGradient id="shieldGrad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="var(--shield-grad-top)" />
-                                        <stop offset="100%" stop-color="var(--shield-grad-bottom)" />
-                                    </linearGradient>
+                                    <radialGradient id="shieldMetal" cx="35%" cy="30%" r="75%">
+                                        <stop offset="0%" stop-color="var(--shield-rim-hi)" />
+                                        <stop offset="55%" stop-color="var(--shield-rim-mid)" />
+                                        <stop offset="100%" stop-color="var(--shield-rim-lo)" />
+                                    </radialGradient>
+                                    <radialGradient id="shieldSheen" cx="38%" cy="28%" r="60%">
+                                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55" />
+                                        <stop offset="45%" stop-color="#ffffff" stop-opacity="0.08" />
+                                        <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+                                    </radialGradient>
                                 </defs>
-                                <path d="M100 8 L184 40 V104 C184 164 148 200 100 212 C52 200 16 164 16 104 V40 Z"
-                                    fill="url(#shieldGrad)" stroke="var(--shield-stroke)" stroke-width="6" stroke-linejoin="round"/>
-                                <path d="M100 8 L184 40 V104 C184 164 148 200 100 212 C52 200 16 164 16 104 V40 Z"
-                                    fill="none" stroke="var(--shield-inner-stroke)" stroke-width="2" stroke-dasharray="4 6" opacity="0.5" transform="scale(0.92)" transform-origin="100 110"/>
-                                <path d="M100 52 L114 88 L153 92 L123 117 L133 156 L100 135 L67 156 L77 117 L47 92 L86 88 Z"
-                                    fill="var(--star-fill)" stroke="var(--star-stroke)" stroke-width="3" stroke-linejoin="round"/>
+                                <!-- outer metallic rim -->
+                                <circle cx="100" cy="100" r="96" fill="url(#shieldMetal)" stroke="var(--shield-rim-lo)" stroke-width="3"/>
+                                <!-- red ring -->
+                                <circle cx="100" cy="100" r="86" fill="var(--shield-red)" stroke="var(--shield-rim-lo)" stroke-width="1.5"/>
+                                <!-- white ring -->
+                                <circle cx="100" cy="100" r="68" fill="var(--shield-white)"/>
+                                <!-- red ring -->
+                                <circle cx="100" cy="100" r="50" fill="var(--shield-red)"/>
+                                <!-- blue center -->
+                                <circle cx="100" cy="100" r="32" fill="var(--shield-blue)" stroke="var(--shield-white)" stroke-width="2"/>
+                                <!-- white star -->
+                                <path d="M100 76 L107.5 92 L125 94.5 L112.5 106.5 L115.5 124 L100 115.5 L84.5 124 L87.5 106.5 L75 94.5 L92.5 92 Z"
+                                    fill="var(--shield-white)"/>
+                                <!-- glossy sheen overlay -->
+                                <circle cx="100" cy="100" r="96" fill="url(#shieldSheen)"/>
                             </svg>
                         </button>
                     </div>
@@ -55,13 +75,15 @@
 
                 <aside class="shop-panel">
                     <h2>Shop</h2>
+                    <div class="shop-tabs" id="shopTabs" role="tablist">
+                        <button class="shop-tab active" data-tab="click" role="tab" aria-selected="true">Click Power</button>
+                        <button class="shop-tab" data-tab="generators" role="tab" aria-selected="false">Generators</button>
+                    </div>
                     <div class="shop-scroll">
-                        <div class="shop-section">
-                            <h3>Click Power</h3>
+                        <div class="shop-section" data-panel="click">
                             <div id="clickUpgrades" class="upgrade-list"></div>
                         </div>
-                        <div class="shop-section">
-                            <h3>Generators</h3>
+                        <div class="shop-section" data-panel="generators" hidden>
                             <div id="generatorUpgrades" class="upgrade-list"></div>
                         </div>
                     </div>
