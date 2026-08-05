@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
             desc: 'The original. Red, white & blue.',
             cost: 0,
             emblem: 'star',
+            shape: 'round',
             colors: { red: '#b1191d', white: '#f5f6f8', blue: '#1e3a8a', star: '#f5f6f8' },
         },
         {
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
             desc: 'Red and gold armor plating.',
             cost: 500,
             emblem: 'arc',
+            shape: 'round',
             colors: { red: '#9e1b1b', white: '#d4af37', blue: '#e8c04a', star: '#3a2a05' },
         },
         {
@@ -26,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             desc: 'Vibranium black & royal purple.',
             cost: 2500,
             emblem: 'claw',
+            shape: 'round',
             colors: { red: '#101014', white: '#5b2a86', blue: '#6d3fa0', star: '#c7cdd6' },
         },
         {
@@ -34,7 +37,17 @@ document.addEventListener('DOMContentLoaded', () => {
             desc: 'Gunmetal black with a crimson star.',
             cost: 10000,
             emblem: 'star',
+            shape: 'round',
             colors: { red: '#17181b', white: '#3d4147', blue: '#24262a', star: '#b1191d' },
+        },
+        {
+            id: 'kiteshield',
+            name: "Cap's First Shield",
+            desc: "A relic of the war years \u2014 the triangular kite shield Cap carried before the iconic disc.",
+            cost: 25000,
+            emblem: 'star',
+            shape: 'kite',
+            colors: { red: '#b1191d', white: '#f5f6f8', blue: '#1e3a8a', star: '#f5f6f8' },
         },
         {
             id: 'hulk',
@@ -42,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             desc: 'Gamma green & gray, purple core.',
             cost: 50000,
             emblem: 'fist',
+            shape: 'round',
             colors: { red: '#2f8a3e', white: '#6b7076', blue: '#5b2a86', star: '#d8f0d8' },
         },
     ];
@@ -156,16 +170,82 @@ document.addEventListener('DOMContentLoaded', () => {
         return builder(cx, cy, r, skin.colors);
     }
 
-    // Builds a full mini shield-ring SVG (used for the shop swatches) so the
-    // preview matches the equipped/available skin's real emblem, not just a
-    // flat color swatch.
+    // ---------- Kite shield shape (Cap's original comic-era shield) ----------
+    // A heater/kite silhouette: a smooth rounded top edge tapering down to a
+    // single point at the bottom. Fully parametric on a center point and a
+    // "radius" R so it can be nested (like the round shield's rings) and
+    // reused at any size -- the big clickable shield, the header brand icon,
+    // and the shop swatch all just call this with different R values.
+    function kiteShieldPath(cx, cy, r) {
+        const topY = cy - r * 0.92;
+        const shoulderY = cy - r * 0.5;
+        const shoulderX = r * 0.82;
+        const bottomY = cy + r * 1.0;
+        const bulgeY = cy + r * 0.15;
+        return (
+            `M ${(cx - shoulderX).toFixed(2)} ${shoulderY.toFixed(2)} ` +
+            `Q ${cx.toFixed(2)} ${topY.toFixed(2)} ${(cx + shoulderX).toFixed(2)} ${shoulderY.toFixed(2)} ` +
+            `Q ${(cx + shoulderX * 1.05).toFixed(2)} ${bulgeY.toFixed(2)} ${cx.toFixed(2)} ${bottomY.toFixed(2)} ` +
+            `Q ${(cx - shoulderX * 1.05).toFixed(2)} ${bulgeY.toFixed(2)} ${(cx - shoulderX).toFixed(2)} ${shoulderY.toFixed(2)} ` +
+            `Z`
+        );
+    }
+
+    // Renders a stack of nested kite silhouettes (outer-to-inner) as the
+    // striped red/white/blue styling that stands in for the round shield's
+    // concentric rings, keeping the same layered look but in the kite shape.
+    function kiteLayersMarkup(cx, cy, layers) {
+        return layers
+            .map((layer) => {
+                const stroke = layer.stroke ? ` stroke="${layer.stroke}" stroke-width="${layer.sw || 1.5}"` : '';
+                return `<path d="${kiteShieldPath(cx, cy, layer.r)}" fill="${layer.fill}"${stroke}/>`;
+            })
+            .join('');
+    }
+
+    // Builds the kite-shaped base for the big clickable shield (200x200,
+    // center 100,100), reusing the metallic rim gradient already defined in
+    // that SVG's <defs>.
+    function buildKiteMainBase(colors) {
+        return kiteLayersMarkup(100, 100, [
+            { r: 96, fill: 'url(#shieldMetal)', stroke: 'var(--shield-rim-lo)', sw: 3 },
+            { r: 86, fill: colors.red, stroke: 'var(--shield-rim-lo)', sw: 1.5 },
+            { r: 68, fill: colors.white },
+            { r: 50, fill: colors.red },
+        ]) + `<circle cx="100" cy="100" r="32" fill="${colors.blue}" stroke="${colors.white}" stroke-width="2"/>`;
+    }
+
+    // Builds the kite-shaped base for the small header brand icon (100x100,
+    // center 50,50), using a flat rim color since that SVG has no gradient defs.
+    function buildKiteHeaderBase(colors) {
+        return kiteLayersMarkup(50, 50, [
+            { r: 48, fill: 'var(--shield-rim-mid)', stroke: 'var(--shield-rim-lo)', sw: 2 },
+            { r: 42, fill: colors.red },
+            { r: 33, fill: colors.white },
+            { r: 24, fill: colors.red },
+        ]) + `<circle cx="50" cy="50" r="15" fill="${colors.blue}" stroke="${colors.white}" stroke-width="1"/>`;
+    }
+
+    // Builds a full mini shield SVG (used for the shop swatches) so the
+    // preview matches the equipped/available skin's real emblem AND shape,
+    // not just a flat color swatch.
     function buildSwatchSVG(skin) {
-        return `
-            <svg viewBox="0 0 100 100" class="skin-swatch-svg" aria-hidden="true">
+        const isKite = skin.shape === 'kite';
+        const base = isKite
+            ? kiteLayersMarkup(50, 50, [
+                  { r: 48, fill: skin.colors.red },
+                  { r: 33, fill: skin.colors.white },
+                  { r: 24, fill: skin.colors.red },
+              ]) + `<circle cx="50" cy="50" r="15" fill="${skin.colors.blue}"/>`
+            : `
                 <circle cx="50" cy="50" r="48" fill="${skin.colors.red}"/>
                 <circle cx="50" cy="50" r="33" fill="${skin.colors.white}"/>
                 <circle cx="50" cy="50" r="24" fill="${skin.colors.red}"/>
                 <circle cx="50" cy="50" r="15" fill="${skin.colors.blue}"/>
+            `;
+        return `
+            <svg viewBox="0 0 100 100" class="skin-swatch-svg" aria-hidden="true">
+                ${base}
                 ${emblemMarkup(skin, 50, 50, 15)}
             </svg>
         `;
@@ -453,6 +533,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mainEmblem) mainEmblem.innerHTML = emblemMarkup(skin, 100, 100, 32);
         const headerEmblem = document.getElementById('shieldEmblemHeader');
         if (headerEmblem) headerEmblem.innerHTML = emblemMarkup(skin, 50, 50, 15);
+
+        // Swap the underlying silhouette (round rings vs. kite shape) for the
+        // big shield and the header icon. Click handling, orbit-ring
+        // positioning, and emblem pops all key off the button/icon's
+        // bounding box and center point, which stay identical regardless of
+        // which base is shown, so no other logic needs to change.
+        const isKite = skin.shape === 'kite';
+
+        const mainRoundBase = document.getElementById('shieldBaseRound');
+        const mainKiteBase = document.getElementById('shieldBaseKite');
+        const mainSheen = document.getElementById('shieldSheenOverlay');
+        if (mainRoundBase) mainRoundBase.style.display = isKite ? 'none' : '';
+        if (mainKiteBase) {
+            mainKiteBase.style.display = isKite ? '' : 'none';
+            if (isKite) mainKiteBase.innerHTML = buildKiteMainBase(skin.colors);
+        }
+        if (mainSheen) mainSheen.style.display = isKite ? 'none' : '';
+
+        const headerRoundBase = document.getElementById('headerBaseRound');
+        const headerKiteBase = document.getElementById('headerBaseKite');
+        if (headerRoundBase) headerRoundBase.style.display = isKite ? 'none' : '';
+        if (headerKiteBase) {
+            headerKiteBase.style.display = isKite ? '' : 'none';
+            if (isKite) headerKiteBase.innerHTML = buildKiteHeaderBase(skin.colors);
+        }
     }
 
     const shieldSkinsEl = document.getElementById('shieldSkins');
@@ -500,7 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const swatch = document.createElement('div');
-            swatch.className = 'skin-swatch';
+            swatch.className = 'skin-swatch' + (s.shape === 'kite' ? ' skin-swatch-kite' : '');
             swatch.innerHTML = buildSwatchSVG(s);
 
             const info = document.createElement('div');

@@ -544,6 +544,16 @@ body {
     display: block;
 }
 
+/* Cap's original kite-shaped shield swatch: the circular clip on
+   .skin-swatch is meant for round shields, so relax it to let the
+   triangular/kite silhouette read correctly instead of being cropped
+   into a circle. */
+.skin-swatch-kite {
+    border-radius: 8px;
+    background: transparent;
+    box-shadow: none;
+}
+
 .skin-info {
     display: flex;
     flex-direction: column;

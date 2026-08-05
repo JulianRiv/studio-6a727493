@@ -11,11 +11,14 @@
             <header class="topbar">
                 <div class="brand">
                     <svg class="brand-icon" viewBox="0 0 100 100" aria-hidden="true">
-                        <circle cx="50" cy="50" r="48" fill="var(--shield-rim-mid)" stroke="var(--shield-rim-lo)" stroke-width="2"/>
-                        <circle cx="50" cy="50" r="42" fill="var(--shield-red)"/>
-                        <circle cx="50" cy="50" r="33" fill="var(--shield-white)"/>
-                        <circle cx="50" cy="50" r="24" fill="var(--shield-red)"/>
-                        <circle cx="50" cy="50" r="15" fill="var(--shield-blue)" stroke="var(--shield-white)" stroke-width="1"/>
+                        <g id="headerBaseRound">
+                            <circle cx="50" cy="50" r="48" fill="var(--shield-rim-mid)" stroke="var(--shield-rim-lo)" stroke-width="2"/>
+                            <circle cx="50" cy="50" r="42" fill="var(--shield-red)"/>
+                            <circle cx="50" cy="50" r="33" fill="var(--shield-white)"/>
+                            <circle cx="50" cy="50" r="24" fill="var(--shield-red)"/>
+                            <circle cx="50" cy="50" r="15" fill="var(--shield-blue)" stroke="var(--shield-white)" stroke-width="1"/>
+                        </g>
+                        <g id="headerBaseKite" style="display:none"></g>
                         <g id="shieldEmblemHeader"></g>
                     </svg>
                     <h1>Shield Clicker</h1>
@@ -51,20 +54,25 @@
                                         <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
                                     </radialGradient>
                                 </defs>
-                                <!-- outer metallic rim -->
-                                <circle cx="100" cy="100" r="96" fill="url(#shieldMetal)" stroke="var(--shield-rim-lo)" stroke-width="3"/>
-                                <!-- red ring -->
-                                <circle cx="100" cy="100" r="86" fill="var(--shield-red)" stroke="var(--shield-rim-lo)" stroke-width="1.5"/>
-                                <!-- white ring -->
-                                <circle cx="100" cy="100" r="68" fill="var(--shield-white)"/>
-                                <!-- red ring -->
-                                <circle cx="100" cy="100" r="50" fill="var(--shield-red)"/>
-                                <!-- blue center -->
-                                <circle cx="100" cy="100" r="32" fill="var(--shield-blue)" stroke="var(--shield-white)" stroke-width="2"/>
+                                <!-- round shield base (default silhouette) -->
+                                <g id="shieldBaseRound">
+                                    <!-- outer metallic rim -->
+                                    <circle cx="100" cy="100" r="96" fill="url(#shieldMetal)" stroke="var(--shield-rim-lo)" stroke-width="3"/>
+                                    <!-- red ring -->
+                                    <circle cx="100" cy="100" r="86" fill="var(--shield-red)" stroke="var(--shield-rim-lo)" stroke-width="1.5"/>
+                                    <!-- white ring -->
+                                    <circle cx="100" cy="100" r="68" fill="var(--shield-white)"/>
+                                    <!-- red ring -->
+                                    <circle cx="100" cy="100" r="50" fill="var(--shield-red)"/>
+                                    <!-- blue center -->
+                                    <circle cx="100" cy="100" r="32" fill="var(--shield-blue)" stroke="var(--shield-white)" stroke-width="2"/>
+                                </g>
+                                <!-- kite shield base (Cap's original shield silhouette) -->
+                                <g id="shieldBaseKite" style="display:none"></g>
                                 <!-- themed emblem, swapped by JS based on equipped skin -->
                                 <g id="shieldEmblemMain"></g>
-                                <!-- glossy sheen overlay -->
-                                <circle cx="100" cy="100" r="96" fill="url(#shieldSheen)"/>
+                                <!-- glossy sheen overlay, only meaningful over the round silhouette -->
+                                <circle id="shieldSheenOverlay" cx="100" cy="100" r="96" fill="url(#shieldSheen)"/>
                             </svg>
                         </button>
                     </div>
