@@ -50,19 +50,24 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const GENERATORS = [
-        { id: 'squire', name: 'Spider-Man', desc: 'A loyal squire polishes shields for you', baseCost: 25, rate: 0.2 },
-        { id: 'blacksmith', name: 'Luke Cage', desc: 'Forges shields automatically', baseCost: 150, rate: 1.5 },
-        { id: 'watchtower', name: 'Avengers Tower', desc: 'Spots shields from afar', baseCost: 900, rate: 8 },
-        { id: 'fortress', name: 'Asgard', desc: 'A whole garrison producing shields', baseCost: 6500, rate: 45 },
-        { id: 'citadel', name: 'Celestial Throne', desc: 'A legendary stronghold of production', baseCost: 45000, rate: 260 },
+        { id: 'squire', name: 'Spider-Man', desc: 'Web-slings across town, tossing shields your way', baseCost: 25, rate: 0.2 },
+        { id: 'blacksmith', name: 'Luke Cage', desc: 'Unbreakable fists hammer out shields nonstop', baseCost: 150, rate: 1.5 },
+        { id: 'watchtower', name: 'Avengers Tower', desc: 'Earth\'s Mightiest HQ, mass-producing shields', baseCost: 900, rate: 8 },
+        { id: 'fortress', name: 'Asgard', desc: 'Golden realm whose forges never cool', baseCost: 6500, rate: 45 },
+        { id: 'citadel', name: 'Celestial Throne', desc: 'A cosmic seat radiating shields across the stars', baseCost: 45000, rate: 260 },
     ];
 
     const GENERATOR_ICONS = {
-        squire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6.5" r="2.3"/><path d="M12 8.8v6"/><path d="M12 10.5 L5 8"/><path d="M12 10.5 L19 8"/><path d="M12 10.5 L6 20"/><path d="M12 10.5 L18 20"/><path d="M12 14.8 L7 13.2"/><path d="M12 14.8 L17 13.2"/></svg>',
-        blacksmith: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3c2 1.5 2 3.5 0 5"/><path d="M8 6l10 10"/><path d="M15 13l6 6"/><path d="M17 15l3-3"/><path d="M4 16l4-4 3 3-4 4-3-1z"/></svg>',
-        watchtower: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21V9l3-5 3 5v12"/><path d="M7 21h10"/><path d="M9.5 13h5"/><path d="M8.5 17h7"/></svg>',
-        fortress: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L14 6 L12 8 L10 6 Z"/><path d="M12 8v6"/><path d="M7 21l5-7 5 7"/><path d="M5 21h14"/></svg>',
-        citadel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L14 8 L20 9 L15.5 13 L17 19 L12 15.5 L7 19 L8.5 13 L4 9 L10 8 Z"/></svg>',
+        // Spider-Man: a spun web (radial spokes + connecting rings)
+        squire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M2 12h20"/><path d="M4.5 4.5l15 15"/><path d="M19.5 4.5l-15 15"/><path d="M12 6.5l-4.2 5.5 4.2 5.5 4.2-5.5z"/><path d="M6.8 9.3h10.4"/><path d="M6.8 14.7h10.4"/></svg>',
+        // Luke Cage: an unbreakable clenched fist
+        blacksmith: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10.5V7a1.4 1.4 0 0 1 2.8 0v3"/><path d="M10.8 10V6a1.4 1.4 0 0 1 2.8 0v4"/><path d="M13.6 10V7a1.4 1.4 0 0 1 2.8 0v5.5"/><path d="M16.4 11v1.8A5.2 5.2 0 0 1 11.2 18h-.6a5.2 5.2 0 0 1-5.1-4.2l-.6-3.1a1.3 1.3 0 0 1 2.53-.6l.27.9"/></svg>',
+        // Avengers Tower: a tall skyscraper with a spire
+        watchtower: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5v2.5"/><rect x="7.5" y="5" width="9" height="16" rx="0.6"/><path d="M9.5 8.5h5"/><path d="M9.5 11.5h5"/><path d="M9.5 14.5h5"/><path d="M9.5 17.5h5"/></svg>',
+        // Asgard: Mjolnir, the enchanted hammer
+        fortress: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="3.2" width="11" height="5.6" rx="1"/><path d="M12 8.8v11.4"/><path d="M9.2 20.2h5.6"/></svg>',
+        // Celestial Throne: a cosmic starburst crown
+        citadel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v5.5"/><path d="M12 16.5V22"/><path d="M2 12h5.5"/><path d="M16.5 12H22"/><path d="M4.6 4.6l3.9 3.9"/><path d="M15.5 15.5l3.9 3.9"/><path d="M19.4 4.6l-3.9 3.9"/><path d="M8.5 15.5l-3.9 3.9"/><circle cx="12" cy="12" r="2.6"/></svg>',
     };
 
     let state = {
@@ -315,6 +320,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const shieldSkinsEl = document.getElementById('shieldSkins');
 
+    // Bind the buy/equip handler ONCE via event delegation on the container,
+    // instead of re-attaching a listener to each button every render. This
+    // way the click still works even if a re-render (e.g. from the 200ms
+    // game tick) swaps out the underlying button DOM node mid-interaction.
+    if (shieldSkinsEl) {
+        shieldSkinsEl.addEventListener('click', (e) => {
+            const btn = e.target.closest('.skin-action');
+            if (!btn || btn.disabled) return;
+            const skin = SHIELD_SKINS.find((sk) => sk.id === btn.dataset.skinId);
+            if (skin) handleShieldSkinAction(skin);
+        });
+    }
+
     function renderShieldSkins() {
         if (!shieldSkinsEl) return;
         shieldSkinsEl.innerHTML = '';
@@ -336,7 +354,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 actionClass += ' equip';
             } else {
                 actionLabel = `Buy (${formatNumber(s.cost)})`;
-                disabled = state.points < s.cost;
+                // Compare against the numeric point total explicitly. state.points
+                // can briefly be a numeric string right after a save/load round-trip
+                // if this were ever serialized oddly, so coerce defensively --
+                // string vs number comparison here previously caused correct
+                // purchases to be blocked as "unaffordable".
+                disabled = Number(state.points) < s.cost;
             }
 
             const swatch = document.createElement('div');
@@ -358,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.className = actionClass;
             btn.textContent = actionLabel;
             btn.disabled = disabled;
-            btn.addEventListener('click', () => handleShieldSkinAction(s));
+            btn.dataset.skinId = s.id;
 
             card.appendChild(swatch);
             card.appendChild(info);
@@ -377,8 +400,8 @@ document.addEventListener('DOMContentLoaded', () => {
             saveState();
             return;
         }
-        if (state.points < s.cost) return;
-        state.points -= s.cost;
+        if (Number(state.points) < s.cost) return;
+        state.points = Number(state.points) - s.cost;
         state.ownedShields[s.id] = true;
         state.equippedShield = s.id;
         applyShieldSkin();
@@ -443,7 +466,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (cards[i]) cards[i].disabled = state.points < cost;
             i++;
         });
-        renderShieldSkins();
+        refreshShieldSkinAffordability();
+    }
+
+    // Lightweight update used on the frequent tick/click paths: only flips
+    // the disabled state of existing "Buy" buttons based on current points,
+    // without tearing down and recreating the DOM (which previously could
+    // yank a button out from under an in-progress click on the Shields tab).
+    // Full rebuilds (renderShieldSkins) are reserved for actual state changes
+    // -- purchase, equip, tab switch, load/reset -- where the button set or
+    // labels genuinely need to change.
+    function refreshShieldSkinAffordability() {
+        if (!shieldSkinsEl) return;
+        shieldSkinsEl.querySelectorAll('.skin-action').forEach((btn) => {
+            const skin = SHIELD_SKINS.find((sk) => sk.id === btn.dataset.skinId);
+            if (!skin) return;
+            const owned = !!state.ownedShields[skin.id];
+            const equipped = state.equippedShield === skin.id;
+            if (!owned && !equipped) {
+                btn.disabled = Number(state.points) < skin.cost;
+            }
+        });
     }
 
     function buyClickUpgrade(u) {
