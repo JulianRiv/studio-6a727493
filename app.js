@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
             name: 'Captain America',
             desc: 'The original. Red, white & blue.',
             cost: 0,
+            emblem: 'star',
             colors: { red: '#b1191d', white: '#f5f6f8', blue: '#1e3a8a', star: '#f5f6f8' },
         },
         {
@@ -16,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
             name: 'Iron Man',
             desc: 'Red and gold armor plating.',
             cost: 500,
+            emblem: 'arc',
             colors: { red: '#9e1b1b', white: '#d4af37', blue: '#e8c04a', star: '#3a2a05' },
         },
         {
@@ -23,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
             name: 'Black Panther',
             desc: 'Vibranium black & royal purple.',
             cost: 2500,
+            emblem: 'claw',
             colors: { red: '#101014', white: '#5b2a86', blue: '#6d3fa0', star: '#c7cdd6' },
         },
         {
@@ -30,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             name: 'Winter Soldier',
             desc: 'Gunmetal black with a crimson star.',
             cost: 10000,
+            emblem: 'star',
             colors: { red: '#17181b', white: '#3d4147', blue: '#24262a', star: '#b1191d' },
         },
         {
@@ -37,9 +41,135 @@ document.addEventListener('DOMContentLoaded', () => {
             name: 'Hulk',
             desc: 'Gamma green & gray, purple core.',
             cost: 50000,
+            emblem: 'fist',
             colors: { red: '#2f8a3e', white: '#6b7076', blue: '#5b2a86', star: '#d8f0d8' },
         },
     ];
+
+    // ---------- Themed center emblems ----------
+    // Each skin's center emblem is generated procedurally (not baked into a
+    // static path) so it scales cleanly across the header brand icon, the
+    // shop swatches, and the big clickable shield -- all of which use
+    // different center-circle radii. `cx`/`cy` are the emblem's center point
+    // and `r` is the radius of the colored center disc it sits on.
+    function starPath(cx, cy, outerR, innerR, spikes = 5, startAngle = -Math.PI / 2) {
+        let d = '';
+        const step = Math.PI / spikes;
+        let angle = startAngle;
+        for (let i = 0; i < spikes; i++) {
+            const xOuter = cx + Math.cos(angle) * outerR;
+            const yOuter = cy + Math.sin(angle) * outerR;
+            d += (i === 0 ? 'M' : 'L') + xOuter.toFixed(2) + ' ' + yOuter.toFixed(2) + ' ';
+            angle += step;
+            const xInner = cx + Math.cos(angle) * innerR;
+            const yInner = cy + Math.sin(angle) * innerR;
+            d += 'L' + xInner.toFixed(2) + ' ' + yInner.toFixed(2) + ' ';
+            angle += step;
+        }
+        return d + 'Z';
+    }
+
+    function triangleSpokes(cx, cy, rInner, rOuter, count, color, opacity) {
+        let out = '';
+        for (let i = 0; i < count; i++) {
+            const angle = ((Math.PI * 2) / count) * i;
+            const perp = angle + Math.PI / 2;
+            const halfWidth = (rOuter - rInner) * 0.22;
+            const x1 = cx + Math.cos(angle) * rInner + Math.cos(perp) * halfWidth;
+            const y1 = cy + Math.sin(angle) * rInner + Math.sin(perp) * halfWidth;
+            const x2 = cx + Math.cos(angle) * rInner - Math.cos(perp) * halfWidth;
+            const y2 = cy + Math.sin(angle) * rInner - Math.sin(perp) * halfWidth;
+            const x3 = cx + Math.cos(angle) * rOuter;
+            const y3 = cy + Math.sin(angle) * rOuter;
+            out += `<path d="M${x1.toFixed(2)} ${y1.toFixed(2)} L${x2.toFixed(2)} ${y2.toFixed(2)} L${x3.toFixed(2)} ${y3.toFixed(2)} Z" fill="${color}" opacity="${opacity}"/>`;
+        }
+        return out;
+    }
+
+    function clawMarks(cx, cy, r, color) {
+        const d = { x: 0.6547, y: 0.7559 };
+        const p = { x: -0.7559, y: 0.6547 };
+        const offsets = [-0.34, 0, 0.34];
+        const len = 0.62;
+        let out = '';
+        offsets.forEach((o, i) => {
+            const sx = cx + p.x * o * r - d.x * len * r;
+            const sy = cy + p.y * o * r - d.y * len * r;
+            const ex = cx + p.x * o * r + d.x * len * r;
+            const ey = cy + p.y * o * r + d.y * len * r;
+            const strokeW = r * (0.15 - i * 0.015);
+            out += `<line x1="${sx.toFixed(2)}" y1="${sy.toFixed(2)}" x2="${ex.toFixed(2)}" y2="${ey.toFixed(2)}" stroke="${color}" stroke-width="${strokeW.toFixed(2)}" stroke-linecap="round"/>`;
+        });
+        return out;
+    }
+
+    // Same clenched-fist geometry used for the Luke Cage generator icon
+    // (see GENERATOR_ICONS.blacksmith), reused here instead of a separate
+    // hand-built fist shape so the two stay visually identical. The source
+    // paths are authored in a 24x24 icon box centered roughly on
+    // (10.65, 12); we recenter+scale them to fit the emblemMarkup(skin, cx,
+    // cy, r) sizing pattern shared by every shield emblem.
+    function fistShape(cx, cy, r, color) {
+        const iconCenterX = 10.65;
+        const iconCenterY = 12;
+        const scale = r * 0.12; // maps the icon's ~6-unit half-height to ~0.72r, in line with the other emblem builders
+        const strokeWidth = (1.6 / scale).toFixed(3);
+        return `
+            <g transform="translate(${cx.toFixed(2)} ${cy.toFixed(2)}) scale(${scale.toFixed(4)}) translate(${-iconCenterX} ${-iconCenterY})">
+                <path d="M8 10.5V7a1.4 1.4 0 0 1 2.8 0v3" fill="none" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.8 10V6a1.4 1.4 0 0 1 2.8 0v4" fill="none" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M13.6 10V7a1.4 1.4 0 0 1 2.8 0v5.5" fill="none" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16.4 11v1.8A5.2 5.2 0 0 1 11.2 18h-.6a5.2 5.2 0 0 1-5.1-4.2l-.6-3.1a1.3 1.3 0 0 1 2.53-.6l.27.9" fill="none" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+        `;
+    }
+
+    const EMBLEM_BUILDERS = {
+        // Captain America: the classic 5-point star.
+        star(cx, cy, r, colors) {
+            const outerR = r * 0.8;
+            const innerR = outerR * 0.52;
+            return `<path d="${starPath(cx, cy, outerR, innerR)}" fill="${colors.star}"/>`;
+        },
+        // Iron Man: arc-reactor rings with a triangular glow.
+        arc(cx, cy, r, colors) {
+            let out = '';
+            out += triangleSpokes(cx, cy, r * 0.4, r * 0.78, 6, '#ffffff', 0.5);
+            out += `<circle cx="${cx}" cy="${cy}" r="${r * 0.8}" fill="none" stroke="${colors.star}" stroke-width="${r * 0.1}"/>`;
+            out += `<circle cx="${cx}" cy="${cy}" r="${r * 0.52}" fill="none" stroke="#ffffff" stroke-width="${r * 0.07}" opacity="0.9"/>`;
+            out += `<circle cx="${cx}" cy="${cy}" r="${r * 0.28}" fill="${colors.star}"/>`;
+            out += `<circle cx="${cx}" cy="${cy}" r="${r * 0.12}" fill="#ffffff"/>`;
+            return out;
+        },
+        // Black Panther: sleek silver claw-mark slashes.
+        claw(cx, cy, r, colors) {
+            return clawMarks(cx, cy, r, colors.star);
+        },
+        // Hulk: a clenched fist / smash silhouette.
+        fist(cx, cy, r, colors) {
+            return fistShape(cx, cy, r * 0.78, colors.star);
+        },
+    };
+
+    function emblemMarkup(skin, cx, cy, r) {
+        const builder = EMBLEM_BUILDERS[skin.emblem] || EMBLEM_BUILDERS.star;
+        return builder(cx, cy, r, skin.colors);
+    }
+
+    // Builds a full mini shield-ring SVG (used for the shop swatches) so the
+    // preview matches the equipped/available skin's real emblem, not just a
+    // flat color swatch.
+    function buildSwatchSVG(skin) {
+        return `
+            <svg viewBox="0 0 100 100" class="skin-swatch-svg" aria-hidden="true">
+                <circle cx="50" cy="50" r="48" fill="${skin.colors.red}"/>
+                <circle cx="50" cy="50" r="33" fill="${skin.colors.white}"/>
+                <circle cx="50" cy="50" r="24" fill="${skin.colors.red}"/>
+                <circle cx="50" cy="50" r="15" fill="${skin.colors.blue}"/>
+                ${emblemMarkup(skin, 50, 50, 15)}
+            </svg>
+        `;
+    }
 
     const CLICK_UPGRADES = [
         { id: 'click1', name: 'Sharper Edge', desc: '+1 per click', baseCost: 15, power: 1 },
@@ -316,6 +446,13 @@ document.addEventListener('DOMContentLoaded', () => {
         root.style.setProperty('--shield-white', skin.colors.white);
         root.style.setProperty('--shield-blue', skin.colors.blue);
         root.style.setProperty('--shield-star', skin.colors.star);
+
+        // Swap the actual emblem shape (not just its color) in both the big
+        // clickable shield and the small header brand icon.
+        const mainEmblem = document.getElementById('shieldEmblemMain');
+        if (mainEmblem) mainEmblem.innerHTML = emblemMarkup(skin, 100, 100, 32);
+        const headerEmblem = document.getElementById('shieldEmblemHeader');
+        if (headerEmblem) headerEmblem.innerHTML = emblemMarkup(skin, 50, 50, 15);
     }
 
     const shieldSkinsEl = document.getElementById('shieldSkins');
@@ -364,8 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const swatch = document.createElement('div');
             swatch.className = 'skin-swatch';
-            swatch.style.setProperty('--skin-center', s.colors.blue);
-            swatch.style.background = `radial-gradient(circle, ${s.colors.red} 0%, ${s.colors.red} 40%, ${s.colors.white} 40%, ${s.colors.white} 60%, ${s.colors.red} 60%, ${s.colors.red} 100%)`;
+            swatch.innerHTML = buildSwatchSVG(s);
 
             const info = document.createElement('div');
             info.className = 'skin-info';
@@ -521,6 +657,90 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => floater.remove(), 900);
     }
 
+    // ---------- Falling emblem "pop" click feedback ----------
+    // On each shield click we spawn a tiny copy of the equipped shield's
+    // emblem (reusing buildSwatchSVG, which itself uses EMBLEM_BUILDERS /
+    // the same colors applyShieldSkin sets) that pops up from the click
+    // point and then tumbles off screen with a gravity-like fall + fade.
+    // Rapid clicking is throttled by capping the number of concurrently
+    // alive pop nodes so the DOM never accumulates.
+    const MAX_EMBLEM_POPS = 10;
+    let activeEmblemPops = 0;
+
+    function spawnEmblemPop(x, y) {
+        if (activeEmblemPops >= MAX_EMBLEM_POPS) return; // throttle rapid clicks
+        const skin = SHIELD_SKINS.find((s) => s.id === state.equippedShield) || SHIELD_SKINS[0];
+
+        const pop = document.createElement('div');
+        pop.className = 'emblem-pop';
+        pop.style.left = x + 'px';
+        pop.style.top = y + 'px';
+        // Slight per-spawn randomness so a burst of clicks doesn't look
+        // perfectly uniform: horizontal drift and tumble direction/amount.
+        const drift = (Math.random() * 2 - 1) * 46; // px, final horizontal drift
+        const rot = (Math.random() < 0.5 ? -1 : 1) * (220 + Math.random() * 200); // deg
+        const riseRot = (Math.random() < 0.5 ? -1 : 1) * (10 + Math.random() * 12);
+        pop.style.setProperty('--pop-drift', drift.toFixed(1) + 'px');
+        pop.style.setProperty('--pop-rot', rot.toFixed(0) + 'deg');
+        pop.style.setProperty('--pop-rise-rot', riseRot.toFixed(0) + 'deg');
+        pop.innerHTML = buildSwatchSVG(skin);
+
+        clickWrap.appendChild(pop);
+        activeEmblemPops++;
+
+        let cleaned = false;
+        const cleanup = () => {
+            if (cleaned) return;
+            cleaned = true;
+            activeEmblemPops--;
+            pop.remove();
+        };
+        pop.addEventListener('animationend', cleanup);
+        // Safety net in case animationend doesn't fire (e.g. node removed
+        // from a hidden tab/backgrounded frame).
+        setTimeout(cleanup, 1400);
+    }
+
+    // ---------- Passive-income emblem pops ----------
+    // Same falling-emblem effect as clicks, but triggered by the passive
+    // generator tick instead of a click. Since ticks fire every TICK_MS and
+    // pointsPerSecond() can range from a fraction of a point to thousands,
+    // we accumulate the fractional points produced and only pop once whole
+    // "units" of income have piled up, capping how many pops any single
+    // tick can spawn so a big generator army can't flood the screen. The
+    // shared MAX_EMBLEM_POPS cap inside spawnEmblemPop still applies on top
+    // of this.
+    let passiveEmblemAccumulator = 0;
+    const MAX_PASSIVE_POPS_PER_TICK = 3;
+
+    // Picks a randomized point near the shield rim (roughly where the
+    // orbiting generator icons travel) rather than a click position, since
+    // passive generation has no click coordinate to anchor to.
+    function spawnGeneratorEmblemPop() {
+        if (!clickWrap) return;
+        const rect = clickWrap.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+        const radius = orbitRadiusPx();
+        const angle = Math.random() * Math.PI * 2;
+        const jitter = radius * (0.85 + Math.random() * 0.3); // hug the rim, with a little spread
+        const x = cx + Math.cos(angle) * jitter;
+        const y = cy + Math.sin(angle) * jitter;
+        spawnEmblemPop(x, y);
+    }
+
+    function spawnPassiveEmblemPops(pointsGained) {
+        if (pointsGained <= 0) return;
+        passiveEmblemAccumulator += pointsGained;
+        const toSpawn = Math.min(MAX_PASSIVE_POPS_PER_TICK, Math.floor(passiveEmblemAccumulator));
+        if (toSpawn <= 0) return;
+        passiveEmblemAccumulator -= toSpawn;
+        for (let i = 0; i < toSpawn; i++) {
+            spawnGeneratorEmblemPop();
+        }
+    }
+
     function handleShieldClick(e) {
         const gain = currentClickPower();
         state.points += gain;
@@ -538,6 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
             y = rect.height / 2;
         }
         spawnFloater(x, y, gain);
+        spawnEmblemPop(x, y);
 
         shieldBtn.classList.remove('pulse');
         // force reflow to restart animation
@@ -596,6 +817,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const gain = pointsPerSecond() * (TICK_MS / 1000);
         if (gain > 0) {
             state.points += gain;
+            spawnPassiveEmblemPops(gain);
             renderStats();
             refreshAffordability();
         }

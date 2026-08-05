@@ -340,6 +340,52 @@ body {
     }
 }
 
+/* ---------- Falling emblem click "pop" ---------- */
+.emblem-pop {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    margin-left: -17px;
+    margin-top: -17px;
+    pointer-events: none;
+    z-index: 21;
+    opacity: 0;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+    animation: emblemPop 1.15s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    will-change: transform, opacity;
+}
+
+.emblem-pop svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+@keyframes emblemPop {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) rotate(0deg) scale(0.4);
+    }
+    12% {
+        opacity: 1;
+        transform: translate(calc(var(--pop-drift, 0px) * 0.15), -34px) rotate(var(--pop-rise-rot, 0deg)) scale(1);
+    }
+    30% {
+        opacity: 1;
+        transform: translate(calc(var(--pop-drift, 0px) * 0.4), -20px) rotate(calc(var(--pop-rise-rot, 0deg) * 1.4)) scale(0.96);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--pop-drift, 0px), 260px) rotate(var(--pop-rot, 260deg)) scale(0.8);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .emblem-pop {
+        animation-duration: 0.6s;
+    }
+}
+
 /* ---------- Shop ---------- */
 .shop-panel {
     background: var(--surface);
@@ -489,15 +535,13 @@ body {
     display: grid;
     place-items: center;
     position: relative;
+    overflow: hidden;
 }
 
-.skin-swatch::after {
-    content: '';
-    position: absolute;
-    inset: 32%;
-    border-radius: 50%;
-    background: var(--skin-center, #1e3a8a);
-    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.25);
+.skin-swatch-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 
 .skin-info {
