@@ -617,6 +617,31 @@ body {
     cursor: default;
 }
 
+/* ---------- Toast notification ---------- */
+.app-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 2rem;
+    transform: translate(-50%, 20px);
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    color: var(--fg);
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-weight: 700;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.app-toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 860px) {
     .shop-panel {

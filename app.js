@@ -356,6 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const shieldBtn = document.getElementById('shieldBtn');
     const clickWrap = document.getElementById('clickWrap');
     const resetBtn = document.getElementById('resetBtn');
+    const brandTitleEl = document.getElementById('brandTitle');
     const clickUpgradesEl = document.getElementById('clickUpgrades');
     const generatorUpgradesEl = document.getElementById('generatorUpgrades');
     const activeGeneratorsEl = document.getElementById('activeGenerators');
@@ -876,6 +877,63 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     shieldBtn.addEventListener('click', handleShieldClick);
+
+    // ---------- Hidden easter-egg cheat: click the title 5x fast ----------
+    // Clicking the brand title/logo 5 times within a short window grants a
+    // one-time large point bonus. The streak resets if too much time passes
+    // between clicks, and once it has fired it cannot fire again until the
+    // click count fully resets back to zero (i.e. the player has to stop
+    // clicking and start a brand-new streak of 5).
+    const CHEAT_CLICK_TARGET = 5;
+    const CHEAT_CLICK_WINDOW_MS = 2000;
+    const CHEAT_BONUS_POINTS = 1000000;
+    let cheatClickCount = 0;
+    let cheatLastClickTime = 0;
+    let cheatArmed = true; // false while a streak that already triggered hasn't reset yet
+
+    function spawnToast(message) {
+        let toast = document.createElement('div');
+        toast.className = 'app-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        // Force reflow so the appear transition runs, then trigger it.
+        void toast.offsetWidth;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 2600);
+    }
+
+    function handleBrandTitleClick() {
+        const now = Date.now();
+        if (now - cheatLastClickTime > CHEAT_CLICK_WINDOW_MS) {
+            // Too much time passed since the last click: restart the streak
+            // and re-arm the cheat so it can trigger again on this new streak.
+            cheatClickCount = 0;
+            cheatArmed = true;
+        }
+        cheatLastClickTime = now;
+        cheatClickCount += 1;
+
+        if (cheatClickCount >= CHEAT_CLICK_TARGET) {
+            if (cheatArmed) {
+                state.points = Number(state.points) + CHEAT_BONUS_POINTS;
+                cheatArmed = false; // can't retrigger until the streak resets
+                renderStats();
+                refreshAffordability();
+                saveState();
+                spawnToast(`\u2728 Secret bonus unlocked! +${formatNumber(CHEAT_BONUS_POINTS)} Shields`);
+            }
+            // Keep counting clicks, but don't let the counter grow forever.
+            cheatClickCount = CHEAT_CLICK_TARGET;
+        }
+    }
+
+    if (brandTitleEl) {
+        brandTitleEl.style.cursor = 'pointer';
+        brandTitleEl.addEventListener('click', handleBrandTitleClick);
+    }
 
     // Shop tabs
     const shopTabs = document.getElementById('shopTabs');
